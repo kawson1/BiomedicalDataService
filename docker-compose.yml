@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  # mqtt eclipse-mosquitto
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mqtt
+    ports:
+      - "1884:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
+    volumes:
+      - ./MQTT/config:/mosquitto/config:rw
+      - ./MQTT/data:/mosquitto/data:rw
+      - ./MQTT/log:/mosquitto/log:rw
+
+# volumes for mapping data,config and log
+volumes:
+  config:
+  data:
+  log:
+
+networks:
+  default:
+    name: mqtt-network
