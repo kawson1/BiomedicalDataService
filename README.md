@@ -39,3 +39,42 @@ If you want to publish message to `example_topic` topic
 ```
 mosquitto_pub -h localhost -p 1884 -t example_topic -m "message" -u user1 -P user1
 ```
+
+## Data Generator
+This project provides REST API controllers and services for the purpose of generating and sending data to MQTT queue.
+
+#### Send message
+
+```http
+  POST /api/mqtt/send?topic={topic}&message={message}
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `topic` | `string` | MQTT topic |
+| `message` | `string` | MQTT message |
+
+
+#### Start generating values
+
+```http
+  GET /api/mqtt/startgenerator?topic={topic}&minValue={minValue}&maxValue={maxValue}&timeStamp={timeStamp}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `topic` | `string` | MQTT topic |
+| `minValue` | `int` | Minimal random value |
+| `maxValue` | `int` | Maximal random value |
+| `timeStamp` | `int` | Delay between generating (ms) |
+
+
+#### Stop generating values
+
+```http
+  GET /api/mqtt/stopgenerator?topic={topic}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `topic` | `string` | Topic of generator to stop |

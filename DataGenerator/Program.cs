@@ -3,6 +3,7 @@ using DataGenerator.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
 using MQTTnet.Client;
@@ -17,13 +18,17 @@ namespace DataGenerator
         static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
             // Create MQTT client factory
             var factory = new MqttFactory();
             // Create MQTT client instance
             var mqttClient = factory.CreateMqttClient();
 
+            var mqttSettings = builder.Configuration.GetSection("MqttSettings").Get<MqttSettings>();
+
             builder.Services.AddControllers();
+            builder.Services.AddSingleton<MqttSettings>(mqttSettings);
             builder.Services.AddSingleton<IMqttClient>(mqttClient);
             builder.Services.AddSingleton<IMqttService, MqttService>();
 
@@ -32,15 +37,11 @@ namespace DataGenerator
             var mqttService = app.Services.GetRequiredService<IMqttService>();
             if (await mqttService.InitializeAsync())
             {
-                //app.MapControllers();
-
                 app.UseRouting();
 
                 app.UseEndpoints(endpoints =>
                 {
-                    endpoints.MapControllers(); // Dodaj obsługę kontrolerów
-
-                    // Tutaj możesz dodać inne endpointy lub obsługę statycznych plików, jeśli potrzebujesz
+                    endpoints.MapControllers();
                 });
                 app.Run();
             }
@@ -51,24 +52,3 @@ namespace DataGenerator
         }
     }
 }
-
-/*                app.MapGet("/myendpoint/{message}", async (HttpContext context) =>
-                {
-                    var message = context.Request.RouteValues["message"]?.ToString();
-
-                    mqttService.SendMessage(message, "example_topic");
-                    context.Response.StatusCode = StatusCodes.Status200OK;
-                    await context.Response.WriteAsync("Hello from MQTT Service!");
-                });*/
-
-/*                app.UseRouting();
-
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapControllers();
-                });*/
-/*                app.UseRouting();
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapControllers();
-                });*/

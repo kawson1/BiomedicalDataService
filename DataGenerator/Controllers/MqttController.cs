@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace DataGenerator.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    internal class MqttController : ControllerBase
+    [Route("api/[controller]")]
+    public class MqttController : ControllerBase
     {
         private readonly IMqttService _mqttService;
 
@@ -19,18 +19,39 @@ namespace DataGenerator.Controllers
             _mqttService = mqttService;
         }
 
-        //[Route("send/{topic}/{message}")]
-        [HttpPost("send/{topic}/{message}")]
-        public async Task<IActionResult> send([FromRoute] string topic,
-                                              [FromRoute] string message)
+        // POST: http://localhost:9000/api/mqtt/send?topic=example_topic&message=message
+        [HttpPost("send")]
+        public async Task<IActionResult> send([FromQuery] string topic,
+                                              [FromQuery] string message)
         {
             return await _mqttService.SendMessage(message, topic) ? Ok() : StatusCode(500, "Couldn't send message to MQTT service.");
         }
 
-        [HttpGet]
-        public void test()
+        // GET: http://localhost:9000/api/mqtt/startgenerator?topic=example_topic&minValue=5&maxValue=10&timeStamp=1000
+        [HttpGet("startgenerator")]
+        public async Task<IActionResult> startGenerator([FromQuery] string topic,
+                                                        [FromQuery] int minValue,
+                                                        [FromQuery] int maxValue,
+                                                        [FromQuery] int timeStamp)
         {
-            Console.WriteLine("TEST");
+            try
+            {
+                await _mqttService.StartGenerator(topic, minValue, maxValue, timeStamp);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(404, ex.Message);
+            }
         }
+
+        // GET: http://localhost:9000/api/mqtt/stopgenerator?topic=example_topic
+        [HttpGet("stopgenerator")]
+        public async Task<IActionResult> stopGenerator([FromQuery] string topic)
+        {
+            _mqttService.StopGenerator(topic);
+            return Ok();
+        }
+
     }
 }
