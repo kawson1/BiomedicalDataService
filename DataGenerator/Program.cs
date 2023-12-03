@@ -1,5 +1,9 @@
-﻿
-
+﻿using DataGenerator.Interfaces;
+using DataGenerator.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
@@ -12,47 +16,59 @@ namespace DataGenerator
     {
         static async Task Main(string[] args)
         {
+            var builder = WebApplication.CreateBuilder(args);
+
             // Create MQTT client factory
             var factory = new MqttFactory();
-
             // Create MQTT client instance
             var mqttClient = factory.CreateMqttClient();
 
-            // Create MQTT client options
-            var options = new MqttClientOptionsBuilder()
-                .WithTcpServer(Settings.host, Settings.port)            // MQTT broker address and port
-                .WithCredentials(Settings.username, Settings.password)  // MQTT broker credentials
-                .WithClientId(Settings.clientId)
-                .Build();
+            builder.Services.AddControllers();
+            builder.Services.AddSingleton<IMqttClient>(mqttClient);
+            builder.Services.AddSingleton<IMqttService, MqttService>();
 
-            // Connect to MQTT broker
-            var connectResult = await mqttClient.ConnectAsync(options);
+            var app = builder.Build();
 
-            if (connectResult.ResultCode == MqttClientConnectResultCode.Success)
+            var mqttService = app.Services.GetRequiredService<IMqttService>();
+            if (await mqttService.InitializeAsync())
             {
-                Console.WriteLine("Connected to MQTT broker successfully.");
+                //app.MapControllers();
 
-                // Publish a message 10 times
-                for (int i = 0; i < 10; i++)
+                app.UseRouting();
+
+                app.UseEndpoints(endpoints =>
                 {
-                    var message = new MqttApplicationMessageBuilder()
-                        .WithTopic("topic")
-                        .WithPayload($"Hello, MQTT! Message number {i}")
-                        .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
-                        .WithRetainFlag()
-                        .Build();
+                    endpoints.MapControllers(); // Dodaj obsługę kontrolerów
 
-                    await mqttClient.PublishAsync(message);
-                    await Task.Delay(1000); // Wait for 1 second
-                }
-
-                // Disconnect
-                await mqttClient.DisconnectAsync();
+                    // Tutaj możesz dodać inne endpointy lub obsługę statycznych plików, jeśli potrzebujesz
+                });
+                app.Run();
             }
             else
             {
-                Console.WriteLine($"Failed to connect to MQTT broker: {connectResult.ResultCode}");
+                Console.WriteLine("Failed to initialize MQTT Service. Application cannot start.");
             }
         }
     }
 }
+
+/*                app.MapGet("/myendpoint/{message}", async (HttpContext context) =>
+                {
+                    var message = context.Request.RouteValues["message"]?.ToString();
+
+                    mqttService.SendMessage(message, "example_topic");
+                    context.Response.StatusCode = StatusCodes.Status200OK;
+                    await context.Response.WriteAsync("Hello from MQTT Service!");
+                });*/
+
+/*                app.UseRouting();
+
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                });*/
+/*                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                });*/
