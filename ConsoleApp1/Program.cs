@@ -4,6 +4,7 @@
     {
         static async Task Main(string[] args)
         {
+<<<<<<< HEAD
             doSomething2();
             await Task.Delay(5000);
         }
@@ -15,6 +16,10 @@
                 await Task.Delay(1000);
                 Console.WriteLine("doSomething2");
             }
+=======
+            await PerformTask();
+            Console.WriteLine($"Ciekawe");
+>>>>>>> main
         }
 
         public static async Task<int> DoSomethingAsync()

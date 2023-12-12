@@ -1,7 +1,18 @@
 ﻿using DataGenerator.Interfaces;
 using MQTTnet;
 using MQTTnet.Client;
+<<<<<<< HEAD
 using MQTTnet.Protocol;
+=======
+using MQTTnet.Packets;
+using MQTTnet.Protocol;
+using MQTTnet.Server;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+>>>>>>> main
 
 namespace DataGenerator.Services
 {
@@ -11,6 +22,10 @@ namespace DataGenerator.Services
 
         private readonly MqttSettings _mqttSettings;
 
+<<<<<<< HEAD
+=======
+        // private readonly Dictionary<string, KeyValuePair<Thread, CancellationToken>> _threads = new Dictionary<string, KeyValuePair<Thread, CancellationToken>>();
+>>>>>>> main
         private readonly Dictionary<string, CancellationTokenSource> _threadsTokens = new Dictionary<string, CancellationTokenSource>();
 
         private int MAX_THREADS = 4;
