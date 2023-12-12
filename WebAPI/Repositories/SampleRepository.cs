@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using WebAPI.Data.Interfaces;
 using WebAPI.Models;
+using WebAPI.Queries;
 using WebAPI.Repositories.Interfaces;
 
 namespace WebAPI.Repositories
@@ -29,12 +30,31 @@ namespace WebAPI.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<Sample>> GetSamples()
+        public async Task<IEnumerable<Sample>> GetSamples(SampleQuery query)
         {
-            return await _context
+            var builder = Builders<Sample>.Filter;
+            var filter = builder.Empty;
+            if (query.DateFrom != null)
+            {
+                filter &= builder.Gt(s => s.Date, query.DateFrom);
+            }
+
+            if (query.SensorType != null)
+            {
+                filter &= builder.Eq(s => s.SensorType, query.SensorType);
+            }
+
+            if (query.SensorId != null)
+            {
+                filter &= builder.Eq(s => s.SensorId, query.SensorId);
+            }
+
+            var filteredSamples = await _context
                 .Samples
-                .Find(s => true)
+                .Find(filter)
                 .ToListAsync();
+
+            return filteredSamples;
         }
 
         public Task<bool> UpdateSample(Sample sample)
