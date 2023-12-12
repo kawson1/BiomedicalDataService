@@ -1,38 +1,36 @@
-using DataGenerator.Interfaces;
-using DataGenerator.Services;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.Protocol;
-using System.Security.Authentication;
-using System.Text;
+using WebAPI.Data.Interfaces;
+using WebAPI.DbContext;
+using WebAPI.Repositories;
+using WebAPI.Repositories.Interfaces;
+using WebAPI.Services;
+using WebAPI.Services.Interfaces;
 
-namespace DataGenerator
+namespace WebAPI
 {
-    internal class Program
+    public class Program
     {
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                                 .AddEnvironmentVariables();
+
             // Create MQTT client factory
             var factory = new MqttFactory();
             // Create MQTT client instance
             var mqttClient = factory.CreateMqttClient();
 
             var mqttSettings = builder.Configuration.GetSection("MqttSettings").Get<MqttSettings>();
-            await Console.Out.WriteLineAsync(mqttSettings.Username);
+            var mongodbSettings = builder.Configuration.GetSection("MongoDB").Get<MongoDBSettings>();
 
-            builder.Services.AddControllers();
+            builder.Services.AddSingleton<MongoDBSettings>(mongodbSettings);
+            builder.Services.AddScoped<ISampleContext, SampleContext>();
+            builder.Services.AddScoped<ISampleRepository, SampleRepository>();
             builder.Services.AddSingleton<MqttSettings>(mqttSettings);
             builder.Services.AddSingleton<IMqttClient>(mqttClient);
             builder.Services.AddSingleton<IMqttService, MqttService>();
+            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 

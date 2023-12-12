@@ -1,8 +1,19 @@
 version: "3.7"
 services:
+  biomedicaldb:
+    image: mongo
+    restart: always
+    container_name: biomedicaldb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    networks:
+      - default
   # mqtt eclipse-mosquitto
   mqtt:
-    image: eclipse-mosquitto
+    build: MQTT
     container_name: mqtt
     ports:
       - "1884:1883" #default mqtt port
@@ -11,8 +22,20 @@ services:
       - ./MQTT/config:/mosquitto/config:rw
       - ./MQTT/data:/mosquitto/data:rw
       - ./MQTT/log:/mosquitto/log:rw
-
-# volumes for mapping data,config and log
+    networks:
+      - default
+  data-generator:
+    build: DataGenerator
+    container_name: data-generator-api
+    environment:
+      - MqttSettings__host=mqtt
+      - MqttSettings__port=1883
+    depends_on:
+      - mqtt
+    ports:
+      - "5189:5189"
+    networks:
+      - default
 volumes:
   config:
   data:
@@ -20,4 +43,3 @@ volumes:
 
 networks:
   default:
-    name: mqtt-network

@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "DataGenerator": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://localhost:5189"
+      }
+    },
+    "Development": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://localhost:5189"
+      }
+    }
+  }
+}
