@@ -1,4 +1,4 @@
-﻿using DataGenerator.Interfaces;
+using DataGenerator.Interfaces;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;

@@ -1,4 +1,4 @@
-﻿using DataGenerator.Interfaces;
+using DataGenerator.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
