@@ -1,26 +1,29 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Web.Http;
 using WebAPI.Models;
+using WebAPI.Queries;
 using WebAPI.Repositories.Interfaces;
+using WebAPI.Services.Interfaces;
 
 namespace WebAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     public class SampleController : ControllerBase
     {
-        private readonly ISampleRepository _repository;
+        private readonly ISampleService _service;
 
-        public SampleController(ISampleRepository repository)
+        public SampleController(ISampleService service)
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Sample>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<Sample>>> GetSamples()
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [ProducesResponseType(typeof(List<Sample>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<List<Sample>>> GetSamples([FromQuery]SampleQuery query)
         {
-            var samples = await _repository.GetSamples();
+            var samples = await _service.GetSortedAndFilteredSamples(query);
             return Ok(samples);
         }
     }
