@@ -24,6 +24,18 @@ namespace WebAPI
             var mqttSettings = builder.Configuration.GetSection("MqttSettings").Get<MqttSettings>();
             var mongodbSettings = builder.Configuration.GetSection("MongoDB").Get<MongoDBSettings>();
 
+            
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("*",
+                    policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
+            
             builder.Services.AddSingleton<MongoDBSettings>(mongodbSettings);
             builder.Services.AddScoped<ISampleContext, SampleContext>();
             builder.Services.AddScoped<ISampleService, SampleService>();
@@ -47,7 +59,7 @@ namespace WebAPI
                 }
 
                 app.UseRouting();
-
+                app.UseCors("*");
                 app.UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();
