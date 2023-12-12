@@ -46,11 +46,11 @@
        </th>
        <th>
          <select v-model="typeParam">
-           <option value="" selected>Wybierz czujnik</option>
-           <option value="czujnik1">Czujnik 1</option>
-           <option value="czujnik2">Czujnik 2</option>
-           <option value="czujnik3">Czujnik 3</option>
-           <option value="czujnik4">Czujnik 4</option>
+           <option value="">Wybierz czujnik</option>
+           <option value="0">HeartRate</option>
+           <option value="1">Temperature</option>
+           <option value="2">RespirationRate</option>
+           <option value="3">Pressure</option>
          </select>
        </th>
        <th>
@@ -65,7 +65,7 @@
      >
        <td>{{ item.id }}</td>
        <td>{{ new Date(item.date).toUTCString() }}</td>
-       <td>{{ item.sensorType }}</td>
+       <td>{{ typesEnum[item.sensorType] }}</td>
        <td>{{ item.sensorId }}</td>
        <td>{{ item.value }}</td>
      </tr>
@@ -84,23 +84,35 @@ data() {
    items: [],
    headers: ["ID", "Data", "Typ czujnika", "Numer instancji", "Wartość"],
    sortKey: '',
-   sortDirection: 1
+   sortDirection: 1,
+   typesEnum: ["HeartRate", "Temperature", "RespirationRate", "Pressure"]
  }
 },
 mounted() {
+ this.typeParam = ""
  this.fetchData()
 },
 methods: {
 createParams() {
- var params = '?sortKey=${this.sortKey}&sortDirection=${this.sortDirection}'
- if(this.dateParam != null) {
-   params += '&dateFrom=${this.dateParam}'
- }
+   var params = `?`
+   if(this.sortKey != '') {
+      params += `sortKey=${this.sortKey}&sortDirection=${this.sortDirection}`
+   }
+   if(this.dateParam != null) {
+      params += `&dateFrom=${this.dateParam}`
+   }
+   if(this.typeParam != "") {
+      params += `&SensorType=${this.typeParam}`
+   }
+   if(this.instanceParam != null) {
+      console.log(this.instanceParam)
+      params += `&SensorId=${this.instanceParam}`
+   }
  return params
 },
 async fetchData() {
   try {
-     this.items = await fetchDataFromApi();
+     this.items = await fetchDataFromApi(this.createParams());
   } catch (error) {
      console.log('Nie udało się pobrać danych: ', error);
   }
