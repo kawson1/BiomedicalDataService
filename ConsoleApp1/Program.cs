@@ -4,8 +4,17 @@
     {
         static async Task Main(string[] args)
         {
-            await PerformTask();
-            Console.WriteLine($"Ciekawe");
+            doSomething2();
+            await Task.Delay(5000);
+        }
+
+        public static async Task doSomething2()
+        {
+            while (true)
+            {
+                await Task.Delay(1000);
+                Console.WriteLine("doSomething2");
+            }
         }
 
         public static async Task<int> DoSomethingAsync()
