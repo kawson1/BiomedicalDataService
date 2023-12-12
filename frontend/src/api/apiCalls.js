@@ -1,9 +1,9 @@
 
-export const fetchDataFromApi = async () => {
+export const fetchDataFromApi = async (params) => {
     try {
       const apiUrl = "http://localhost:5000/api/Sample";
 
-      const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl+params);
       const items = await response.json();
       console.log(items);
       return items;
