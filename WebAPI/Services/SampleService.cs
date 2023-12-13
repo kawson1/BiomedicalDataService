@@ -14,11 +14,30 @@ public class SampleService : ISampleService
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 
-    public async Task<List<Sample>> GetSortedAndFilteredSamples(SampleQuery query)
+    public List<Sample> GetSortedAndFilteredSamples(SampleQuery query)
     {
-        var filteredSamples = await _repository.GetSamples(query);
+        var filteredSamples = _repository.GetSamples(query);
         var sortedSamples = sortSamples(filteredSamples, query.SortKey, query.SortDirection);
         return sortedSamples;
+    }
+
+    public Sample GetNewestSample(SensorType sensorType)
+    {
+        var newestSample = _repository.GetSample(sensorType);
+        return newestSample;
+    }
+
+    public double GetAvg(SensorType sensorType)
+    {
+        var query = new SampleQuery
+        {
+            SensorType = sensorType
+        };
+        var filteredSamples = _repository.GetSamples(query);
+        var sortedSamples = sortSamples(filteredSamples, query.SortKey, query.SortDirection);
+        var hundredSamples = sortedSamples.Take(100);
+        var average = hundredSamples.Average(s => s.Value);
+        return average;
     }
 
     private List<Sample> sortSamples(IEnumerable<Sample> samples, string? key, int? direction)

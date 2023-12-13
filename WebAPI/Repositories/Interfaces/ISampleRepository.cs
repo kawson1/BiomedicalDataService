@@ -5,8 +5,8 @@ namespace WebAPI.Repositories.Interfaces
 {
     public interface ISampleRepository
     {
-        Task<IEnumerable<Sample>> GetSamples(SampleQuery query);
-        Task<Sample> GetSample(string id);
+        IEnumerable<Sample> GetSamples(SampleQuery query);
+        Sample GetSample(SensorType sensorType);
 
         Task CreateSample(Sample sample);
         Task<bool> UpdateSample(Sample sample);
