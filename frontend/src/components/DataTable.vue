@@ -72,11 +72,17 @@
   </tbody>
 </table>
 <button @click="fetchData">Odśwież tabele</button>
+<button @click="downloadCsv">Pobierz CSV</button>
+<button @click="downloadJson">Pobierz JSON</button>
+<button @click="generateChart">Generuj Wykres</button>
+<div><canvas ref="canvasChart"></canvas></div>
+
 </template>
 
 <script>
-import { fetchDataFromApi } from '../api/apiCalls';
+import { fetchDataFromApi, downloadJsonFromApi,downloadCsvFromApi } from '../api/apiCalls';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import Chart from 'chart.js/auto';
 
 export default {
 data() {
@@ -85,7 +91,8 @@ data() {
    headers: ["ID", "Data", "Typ czujnika", "Numer instancji", "Wartość"],
    sortKey: '',
    sortDirection: 1,
-   typesEnum: ["HeartRate", "Temperature", "RespirationRate", "Pressure"]
+   typesEnum: ["HeartRate", "Temperature", "RespirationRate", "Pressure"],
+   dataChart: null
  }
 },
 mounted() {
@@ -141,6 +148,79 @@ iconStyle(key) {
   }
   return {};
 },
+async downloadCsv() {
+   try {
+      const csvData = await downloadCsvFromApi(this.createParams());
+      this.downloadFile(csvData,'text/csv', 'Samples.csv')
+   }catch (error){
+      console.log("Error downloading csv", error);
+   }
+},
+async downloadJson() {
+   try {
+      const jsonData = await downloadJsonFromApi(this.createParams());
+
+      this.downloadFile(jsonData,'application/json', 'Samples.json')
+   }catch (error){
+      console.log("Error downloading json", error);
+   }
+},
+downloadFile(data, mimeType, fileName) {
+      const blob = new Blob([data], { type: mimeType });
+      const link = document.createElement('a');
+
+      link.href = window.URL.createObjectURL(blob);
+      link.download = fileName;
+
+      // Append the link to the body and trigger the click event
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up: Remove the link after the download
+      document.body.removeChild(link);
+    
+  },
+
+  async generateChart() {
+      try {
+        const jsonData = await fetchDataFromApi(this.createParams());
+
+        const labels = jsonData.map(item => item.Date);
+        const values = jsonData.map(item => item.Value);
+
+        if (this.dataChart) {
+          this.dataChart.destroy();
+        }
+
+        const canvas = this.$refs.canvasChart;
+
+
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+          type: 'bar', 
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Wartość czujnika',
+              data: values,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)', 
+              borderWidth: 1 
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.log('Error generating chart:', error);
+      }
+    },
+
 },
 };
 </script>

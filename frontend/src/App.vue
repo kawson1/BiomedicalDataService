@@ -1,7 +1,8 @@
 <template>
   <nav>
-    <router-link to="/">Pulpit</router-link> |
-    <router-link to="/table">Tabela</router-link>
+    <router-link to="/">Home</router-link> |
+    <router-link to="/table">Tabela</router-link> |
+    <router-link to="/dashboard">Pulpit</router-link>
   </nav>
   <router-view/>
 </template>
