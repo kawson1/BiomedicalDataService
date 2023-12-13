@@ -25,12 +25,23 @@ namespace WebAPI.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Sample> GetSample(string id)
+        public Sample GetSample(SensorType sensorType)
         {
-            throw new NotImplementedException();
+            var sortBuilder = Builders<Sample>.Sort;
+            var sort = sortBuilder.Ascending("time");
+            var filterBuilder = Builders<Sample>.Filter;
+            var filter = filterBuilder.Eq(s => s.SensorType, sensorType);
+            var newestSample = _context
+                .Samples
+                .Find(filter)
+                .SortByDescending(s => s.Id)
+                .First();
+            return newestSample;
         }
+        
+        
 
-        public async Task<IEnumerable<Sample>> GetSamples(SampleQuery query)
+        public IEnumerable<Sample> GetSamples(SampleQuery query)
         {
             var builder = Builders<Sample>.Filter;
             var filter = builder.Empty;
@@ -49,10 +60,11 @@ namespace WebAPI.Repositories
                 filter &= builder.Eq(s => s.SensorId, query.SensorId);
             }
 
-            var filteredSamples = await _context
+            var filteredSamples = _context
                 .Samples
                 .Find(filter)
-                .ToListAsync();
+                .Limit(5000)
+                .ToList();
 
             return filteredSamples;
         }
