@@ -2,6 +2,8 @@
 using MQTTnet.Client;
 using MQTTnet.Server;
 using System.Text;
+using WebAPI.Models;
+using WebAPI.Repositories.Interfaces;
 using WebAPI.Services.Interfaces;
 
 namespace WebAPI.Services
@@ -11,17 +13,15 @@ namespace WebAPI.Services
         private readonly IMqttClient _mqttClient;
 
         private readonly MqttSettings _mqttSettings;
+        
+        private readonly ISampleRepository _repository;
 
-        private Thread t1;
-        private Thread t2;
-        private Thread t3;
-        private Thread t4;
-
-        public MqttService(IMqttClient mqttClient, MqttSettings mqttSettings)
+        public MqttService(IMqttClient mqttClient, MqttSettings mqttSettings, ISampleRepository repository)
         {
             Console.WriteLine("MqttService registered");
             _mqttClient = mqttClient;
             _mqttSettings = mqttSettings;
+            _repository = repository;
         }
 
         public async Task<bool> InitializeAsync()
@@ -40,11 +40,19 @@ namespace WebAPI.Services
             var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
                 .WithTopicFilter
                 (
-                    f => f.WithTopic("example_topic")
+                    f => f.WithTopic("heartrate")
                 )
                 .WithTopicFilter
                 (
-                    f => f.WithTopic("example_topic_2")
+                    f => f.WithTopic("temperature")
+                )
+                .WithTopicFilter
+                (
+                    f => f.WithTopic("respirationrate")
+                )
+                .WithTopicFilter
+                (
+                    f => f.WithTopic("pressure")
                 )
                 .Build();
 
@@ -55,7 +63,37 @@ namespace WebAPI.Services
 
         public async Task ReceiveMessageHandler(MqttApplicationMessageReceivedEventArgs e)
         {
-            await Console.Out.WriteLineAsync(e.ApplicationMessage.Topic + " : " + Encoding.UTF8.GetString(e.ApplicationMessage.Payload)); 
+            string[] message = Encoding.UTF8.GetString(e.ApplicationMessage.Payload).Split(",");
+            var value = Int32.Parse(message[0]);
+            var instance = Int32.Parse(message[1]);
+            SensorType sensorType = SensorType.HeartRate;
+            switch (e.ApplicationMessage.Topic)
+            {
+                case "heartrate":
+                    sensorType = SensorType.HeartRate;
+                    break;
+                case "temperature":
+                    sensorType = SensorType.Temperature;
+                    break;
+                case "respirationrate":
+                    sensorType = SensorType.RespirationRate;
+                    break;
+                case "pressure":
+                    sensorType = SensorType.Pressure;
+                    break;
+            }
+
+            int id = _repository.GetId();
+            
+            var newSample = new Sample()
+            {
+                Id = id + 1,
+                Date = DateTime.Now,
+                SensorType = sensorType,
+                SensorId = instance,
+                Value = value
+            };
+            _repository.CreateSample(newSample);
         }
     }
 }

@@ -2,10 +2,10 @@
 
 namespace WebAPI.Models
 {
+    [Serializable]
     public class Sample
     {
         [BsonId]
-//        [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
         public int Id { get; set; }
         public DateTime Date { get; set; }
         public SensorType SensorType { get; set; }

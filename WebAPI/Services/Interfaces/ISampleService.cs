@@ -9,4 +9,6 @@ public interface ISampleService
     public Sample GetNewestSample(SensorType sensorType);
 
     public double GetAvg(SensorType sensorType);
+
+    public void Clear();
 }

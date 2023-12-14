@@ -15,20 +15,13 @@ namespace WebAPI.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public Task CreateSample(Sample sample)
+        public void CreateSample(Sample sample)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> DeleteSample(string id)
-        {
-            throw new NotImplementedException();
+            _context.Samples.InsertOne(sample);
         }
 
         public Sample GetSample(SensorType sensorType)
         {
-            var sortBuilder = Builders<Sample>.Sort;
-            var sort = sortBuilder.Ascending("time");
             var filterBuilder = Builders<Sample>.Filter;
             var filter = filterBuilder.Eq(s => s.SensorType, sensorType);
             var newestSample = _context
@@ -37,6 +30,17 @@ namespace WebAPI.Repositories
                 .SortByDescending(s => s.Id)
                 .First();
             return newestSample;
+        }
+        
+        public int GetId()
+        {
+            var newestSample = _context
+                .Samples
+                .Find(_ => true)
+                .SortByDescending(s => s.Id);
+            if (!newestSample.Any())
+                return 0;
+            return newestSample.First().Id;
         }
         
         
@@ -69,9 +73,11 @@ namespace WebAPI.Repositories
             return filteredSamples;
         }
 
-        public Task<bool> UpdateSample(Sample sample)
+        public void Clear()
         {
-            throw new NotImplementedException();
+            var builder = Builders<Sample>.Filter;
+            var filter = builder.Empty;
+            _context.Samples.DeleteMany(filter);
         }
     }
 }

@@ -40,6 +40,11 @@ public class SampleService : ISampleService
         return average;
     }
 
+    public void Clear()
+    {
+        _repository.Clear();
+    }
+
     private List<Sample> sortSamples(IEnumerable<Sample> samples, string? key, int? direction)
     {
         Func<Sample, Object> orderByFunc = null;
@@ -56,7 +61,7 @@ public class SampleService : ISampleService
         {
             orderByFunc = sample => sample.Date;
         }
-        else if (key.Equals("sensorType"))
+        else if (key.Equals("type"))
         {
             orderByFunc = sample => sample.SensorType;
         }
@@ -71,9 +76,9 @@ public class SampleService : ISampleService
 
         if (direction == 1)
         {
-            return samples.OrderBy(orderByFunc).ToList();
+            return samples.OrderByDescending(orderByFunc).ToList();
         }
 
-        return samples.OrderByDescending(orderByFunc).ToList();
+        return samples.OrderBy(orderByFunc).ToList();
     }
 }

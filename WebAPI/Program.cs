@@ -37,9 +37,9 @@ namespace WebAPI
             });
             
             builder.Services.AddSingleton<MongoDBSettings>(mongodbSettings);
-            builder.Services.AddScoped<ISampleContext, SampleContext>();
-            builder.Services.AddScoped<ISampleService, SampleService>();
-            builder.Services.AddScoped<ISampleRepository, SampleRepository>();
+            builder.Services.AddSingleton<ISampleContext, SampleContext>();
+            builder.Services.AddSingleton<ISampleService, SampleService>();
+            builder.Services.AddSingleton<ISampleRepository, SampleRepository>();
             builder.Services.AddSingleton<MqttSettings>(mqttSettings);
             builder.Services.AddSingleton<IMqttClient>(mqttClient);
             builder.Services.AddSingleton<IMqttService, MqttService>();
