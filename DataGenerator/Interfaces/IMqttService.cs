@@ -16,7 +16,7 @@ namespace DataGenerator.Interfaces
 
         public Task<bool> SendMessage(string message, string topic);
 
-        public Task StartGenerator(string topic, int minValue, int maxValue, int timeStamp);
+        public Task StartGenerator(string topic,int instance, int minValue, int maxValue, int timeStamp);
 
         public void StopGenerator(string topic);
 

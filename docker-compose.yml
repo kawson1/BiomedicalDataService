@@ -36,6 +36,29 @@ services:
       - "5189:5189"
     networks:
       - default
+  web-api:
+    build: WebAPI
+    container_name: web-api
+    environment:
+      - MqttSettings__host=mqtt
+      - MqttSettings__port=1883
+      - MongoDB__ConnectionURI=mongodb://root:password@host.docker.internal:27017
+    depends_on:
+      - data-generator
+      - biomedicaldb
+    ports:
+      - "5000:5000"
+    networks:
+      - default
+  frontend:
+    build: frontend
+    container_name: frontend
+    ports:
+      - 8080:8080
+    depends_on:
+      - web-api
+    networks:
+      - default
 volumes:
   config:
   data:

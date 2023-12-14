@@ -46,8 +46,8 @@ namespace WebAPI.Controllers
         [HttpGet("GetCsv")]
         public async Task<FileResult> GetCsv([FromQuery] SampleQuery query)
         {
-            var jsonContent = CsvSerializer.SerializeToUtf8Bytes(_service.GetSortedAndFilteredSamples(query));
-            return File(jsonContent, "application/json", "Samples.json");
+            var csvContent = CsvSerializer.SerializeToUtf8Bytes(_service.GetSortedAndFilteredSamples(query));
+            return File(csvContent, "application/csv", "Samples.csv");
         }
         
         [HttpGet("GetJson")]
@@ -55,6 +55,13 @@ namespace WebAPI.Controllers
         {
             var jsonContent = JsonSerializer.SerializeToUtf8Bytes(_service.GetSortedAndFilteredSamples(query));
             return File(jsonContent, "application/json", "Samples.json");
+        }
+
+        [HttpGet("Clear")]
+        public async Task<ActionResult> Clear()
+        {
+            _service.Clear();
+            return Ok();
         }
     }
 }

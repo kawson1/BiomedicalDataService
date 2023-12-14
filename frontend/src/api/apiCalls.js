@@ -45,11 +45,11 @@ export const downloadJsonFromApi = async (params) => {
   }
 };
 
-export const fetchNewestDataFromApi = async () => {
+export const fetchNewestDataFromApi = async (params) => {
   try {
     const apiUrl = "http://localhost:5000/Sample/GetNewest";
 
-    const response = await fetch(apiUrl);
+    const response = await fetch(apiUrl + params);
     const newestData = await response.json();
 
 
@@ -61,11 +61,11 @@ export const fetchNewestDataFromApi = async () => {
   }
 };
 
-export const fetchAvgDataFromApi = async () => {
+export const fetchAvgDataFromApi = async (params) => {
   try {
     const apiUrl = "http://localhost:5000/Sample/GetAvg";
 
-    const response = await fetch(apiUrl);
+    const response = await fetch(apiUrl + params);
     const avgData = await response.json();
 
     return avgData;

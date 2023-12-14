@@ -58,7 +58,7 @@ This project provides REST API controllers and services for the purpose of gener
 #### Start generating values
 
 ```http
-  GET /api/mqtt/startgenerator?topic={topic}&minValue={minValue}&maxValue={maxValue}&timeStamp={timeStamp}
+  GET /api/mqtt/startgenerator?topic=example_topic&minValue=5&maxValue=10&timeStamp=1000
 ```
 
 | Parameter | Type     | Description                       |

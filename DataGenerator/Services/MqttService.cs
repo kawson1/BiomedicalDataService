@@ -13,7 +13,7 @@ namespace DataGenerator.Services
 
         private readonly Dictionary<string, CancellationTokenSource> _threadsTokens = new Dictionary<string, CancellationTokenSource>();
 
-        private int MAX_THREADS = 4;
+        private int MAX_THREADS = 16;
 
         public MqttService(IMqttClient mqttClient, MqttSettings mqttSettings)
         {
@@ -48,7 +48,7 @@ namespace DataGenerator.Services
             return result.IsSuccess;
         }
 
-        public async Task StartGenerator(string topic, int minValue, int maxValue, int timeStamp)
+        public async Task StartGenerator(string topic, int instance, int minValue, int maxValue, int timeStamp)
         {
             if (MAX_THREADS == 0)
                 throw new Exception("No threads available");
@@ -58,16 +58,17 @@ namespace DataGenerator.Services
             Thread thread = new Thread(async () =>
             {
                 var random = new Random();
+                var _instance = instance;
                 while (true)
                 {
                     if (tokenSource.Token.IsCancellationRequested)
                         return;
                     var value = random.Next(minValue, maxValue);
-                    await SendMessage(value.ToString(), topic);
+                    await SendMessage($"{value},{_instance}", topic);
                     await Task.Delay(timeStamp);
                 }
             });
-            _threadsTokens.Add(topic, tokenSource);
+            _threadsTokens.Add(topic+instance, tokenSource);
             --MAX_THREADS;
             thread.Start();
         }

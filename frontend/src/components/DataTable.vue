@@ -1,4 +1,8 @@
 <template>
+   <button @click="fetchData">Odśwież tabele</button>
+   <button @click="downloadCsv">Pobierz CSV</button>
+   <button @click="downloadJson">Pobierz JSON</button>
+   <button @click="generateChart">Generuj Wykres</button>
    <table class="bordered-table">
 
   <thead>
@@ -71,10 +75,6 @@
      </tr>
   </tbody>
 </table>
-<button @click="fetchData">Odśwież tabele</button>
-<button @click="downloadCsv">Pobierz CSV</button>
-<button @click="downloadJson">Pobierz JSON</button>
-<button @click="generateChart">Generuj Wykres</button>
 <div><canvas ref="canvasChart"></canvas></div>
 
 </template>
